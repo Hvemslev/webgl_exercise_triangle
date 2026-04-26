@@ -51,6 +51,8 @@ function initVertexShader(){
         return;
     }
     return shader;
+
+    
 }
 
 function initFragmentShader(){
@@ -186,25 +188,38 @@ w,-h, 0.0, 0.0, 0.0, 1.0,
 w, h, 0.0, 1.0, 1.0, 0.0);
 }
 
-function CreateCube(width, height, length){
+function CreateCube(width, height, length, divX, divY, divZ){
 vertices.length = 0;
 const w = width * 0.5;
 const h = height * 0.5;
 const l = length * 0.5;
-//front
-AddQuad(
-    -w, h, l, 1.0, 0.0, 0.0,
-    -w, -h, l, 0.0, 1.0, 0.0,
-    w, -h, l, 0.0, 0.0, 1.0,
-    w, h, l, 1.0, 1.0, 0.0
-);
-//back
-AddQuad(
-    w, h, -l, 1.0, 1.0, 0.0,
-    w, -h, -l, 0.0, 0.0, 1.0,
-    -w,-h, -l, 0.0, 1.0, 0.0,
-    -w, h, -l, 1.0, 0.0, 0.0
-);
+
+let color = 0.0;
+
+
+for(let i = 0; i < divX; i++){
+    for(let j = 0; j < divY; j++){
+        //front
+        AddQuad(
+        -w+(width/divX)*i, h-(height/divY)*j, l, color, 0.0, 0.0,
+        -w+(width/divX)*i, h-(height/divY)*(j+1), l, color, 0.0, 0.0,
+        -w+(width/divX)*(i+1), h-(height/divY)*(j+1), l, color, 0.0, 0.0,
+        -w+(width/divX)*(i+1), h-(height/divY)*j, l, color, 0.0, 0.0
+        ); 
+        //back 
+        AddQuad(
+        w-(width/divX)*i, h-(height/divY)*j, -l, color, 0.0, 0.0,
+        w-(width/divX)*i, h-(height/divY)*(j+1), -l, color, 0.0, 0.0,
+        w-(width/divX)*(i+1), h-(height/divY)*(j+1), -l, color, 0.0, 0.0,
+        w-(width/divX)*(i+1), h-(height/divY)*j, -l, color, 0.0, 0.0
+        );
+        if(color==1.0){
+            color=0.0
+        } else {color=1.0}
+    }
+    
+}
+
 //left
 AddQuad(
     -w, h, -l, 1.0, 0.0, 0.0,
@@ -219,11 +234,21 @@ AddQuad(
     w, -h, -l, 0.0, 0.0, 1.0,
     w, h, -l, 1.0, 1.0, 0.0
 );
-
-
+//bottom
+AddQuad(
+    -w, -h, l, 1.0, 0.0, 0.0,
+    -w, -h, -l, 0.0, 1.0, 0.0,
+    w, -h, -l, 0.0, 0.0, 1.0,
+    w, -h, l, 1.0, 1.0, 0.0
+);
+//top
+AddQuad(
+    -w, h, -l, 1.0, 0.0, 0.0,
+    -w, h, l, 0.0, 1.0, 0.0,
+    w, h, l, 0.0, 0.0, 1.0,
+    w, h, -l, 1.0, 1.0, 0.0
+);
 }
-
-
 
 function CreateGeometryUI() {
     const ew = document.getElementById("w");
@@ -232,19 +257,31 @@ function CreateGeometryUI() {
     const h = eh ? eh.value : 1.0;
     const el = document.getElementById("l");
     const l = el ? el.value : 1.0;
+    const esdx = document.getElementById("sdx");
+    const sdx = esdx ? esdx.value : 1.0;
+    const esdy = document.getElementById("sdy");
+    const sdy = esdy ? esdy.value : 1.0;
+    const esdz = document.getElementById("sdz");
+    const sdz = esdz ? esdz.value : 1.0;
     document.getElementById("ui").innerHTML =
 'Width: <input type="number" id="w" value="' + w + 
 '"onchange= "initShaders();"><br>' +
 'Height: <input type="number" id="h" value="'+ h +
 '"onchange= "initShaders();"><br>' +
 'Length: <input type="number" id="l" value="'+ l +
+'"onchange= "initShaders();"><br>' +
+'SubDivX: <input type="number" id="sdx" value="'+ sdx +
+'"onchange= "initShaders();"><br>' +
+'SubDivY: <input type="number" id="sdy" value="'+ sdy +
+'"onchange= "initShaders();"><br>' +
+'SubDivZ: <input type="number" id="sdz" value="'+ sdz +
 '"onchange= "initShaders();">'
 ;
     let e = document.getElementById("shape");
     switch (e.selectedIndex) {
         case 0: CreateTriangle(w, h); break;
         case 1: CreateQuad(w, h); break;
-        case 2: CreateCube(w, h, l); break;
+        case 2: CreateCube(w, h, l, sdx, sdy, sdz); break;
     }
 }
 
